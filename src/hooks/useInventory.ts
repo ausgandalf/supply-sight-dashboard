@@ -35,6 +35,11 @@ export const useInventory = () => {
     rowsPerPage: 10,
   });
 
+  // Reset pagination when filters change
+  useEffect(() => {
+    setPagination(prev => ({ ...prev, currentPage: 1 }));
+  }, [filters]);
+
   // Fetch data when filters or pagination changes
   useEffect(() => {
     const fetchData = async () => {

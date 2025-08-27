@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Product } from '../types';
+import { Product, Warehouse } from '../types';
 import { X } from 'lucide-react';
 
 interface ProductDrawerProps {
@@ -9,7 +9,7 @@ interface ProductDrawerProps {
   onClose: () => void;
   onUpdateDemand: (productId: string, newDemand: number) => Promise<void>;
   onTransferStock: (productId: string, quantity: number, fromWarehouse: string, toWarehouse: string) => Promise<void>;
-  warehouses: string[];
+  warehouses: Warehouse[];
 }
 
 const ProductDrawer: React.FC<ProductDrawerProps> = ({ product, isOpen, onClose, onUpdateDemand, onTransferStock, warehouses }) => {
@@ -20,8 +20,8 @@ const ProductDrawer: React.FC<ProductDrawerProps> = ({ product, isOpen, onClose,
   useEffect(() => {
     if (product) {
       setDemand(product.demand);
-      const otherWarehouses = warehouses.filter(w => w !== product.warehouse);
-      setTransferTo(otherWarehouses.length > 0 ? otherWarehouses[0] : '');
+      const otherWarehouses = warehouses.filter(w => w.code !== product.warehouse);
+      setTransferTo(otherWarehouses.length > 0 ? otherWarehouses[0].code : '');
     }
   }, [product]);
 
@@ -100,10 +100,10 @@ const ProductDrawer: React.FC<ProductDrawerProps> = ({ product, isOpen, onClose,
                   onChange={(e) => setTransferTo(e.target.value)}
                   className="w-full px-3 py-2 border border-slate-300 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white"
                 >
-                  {warehouses.filter(w => w !== product.warehouse).map(w => <option key={w} value={w}>{w}</option>)}
+                  {warehouses.filter(w => w.code !== product.warehouse).map(w => <option key={w.code} value={w.code}>{w.code}</option>)}
                 </select>
               </div>
-                             <button type="submit" disabled={isSubmitting || warehouses.filter(w => w !== product.warehouse).length === 0} className="w-full bg-slate-600 text-white font-semibold py-2 px-4 rounded-md hover:bg-slate-700 disabled:bg-slate-300 transition">
+                             <button type="submit" disabled={isSubmitting || warehouses.filter(w => w.code !== product.warehouse).length === 0} className="w-full bg-slate-600 text-white font-semibold py-2 px-4 rounded-md hover:bg-slate-700 disabled:bg-slate-300 transition">
                 {isSubmitting ? 'Transferring...' : `Transfer ${product.stock.toLocaleString()} Units`}
               </button>
             </form>

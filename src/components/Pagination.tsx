@@ -23,7 +23,7 @@ const Pagination: React.FC<PaginationProps> = ({
   onRowsPerPageChange,
 }) => {
   const pageNumbers = [];
-  const maxVisiblePages = 5;
+  const maxVisiblePages = 3;
   
   // Calculate which page numbers to show
   let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
@@ -40,9 +40,9 @@ const Pagination: React.FC<PaginationProps> = ({
   const rowsPerPageOptions = [5, 10, 20, 50];
 
   return (
-    <div className="flex items-center justify-between px-6 py-4 border-t border-slate-200 bg-white">
+    <div className="flex flex-col gap-4 sm:flex-row items-center justify-between px-6 py-4 border-t border-slate-200 bg-white">
       {/* Left side - Page info and rows per page */}
-      <div className="flex items-center space-x-4">
+      <div className="flex flex-col gap-2 lg:flex-row items-center space-x-4">
         <div className="text-sm text-slate-600">
           Showing {((currentPage - 1) * rowsPerPage) + 1} to {Math.min(currentPage * rowsPerPage, totalCount)} of {totalCount} results
         </div>

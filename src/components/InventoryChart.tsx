@@ -7,7 +7,7 @@ interface InventoryChartProps {
   data: ChartDataPoint[];
 }
 
-const InventoryChart: React.FC<InventoryChartProps> = ({ data }) => {
+const InventoryChart: React.FC<InventoryChartProps> = React.memo(({ data }) => {
   return (
     <div style={{ width: '100%', height: 300 }}>
       <ResponsiveContainer>
@@ -37,6 +37,6 @@ const InventoryChart: React.FC<InventoryChartProps> = ({ data }) => {
       </ResponsiveContainer>
     </div>
   );
-};
+});
 
 export default InventoryChart;

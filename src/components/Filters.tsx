@@ -1,22 +1,26 @@
 
-import React from 'react';
-import { ProductStatus, Warehouse } from '../types';
+import React, { useCallback } from 'react';
+import { ProductStatus, Warehouse, Filters as FiltersType } from '../types';
 import { Search } from 'lucide-react';
 
 interface FiltersProps {
-  filters: {
-    search: string;
-    warehouse: string;
-    status: ProductStatus | 'All';
-  };
-  setFilters: React.Dispatch<React.SetStateAction<typeof filters>>;
+  filters: FiltersType;
+  setFilters: React.Dispatch<React.SetStateAction<FiltersType>>;
   warehouses: Warehouse[];
 }
 
-const Filters: React.FC<FiltersProps> = ({ filters, setFilters, warehouses }) => {
-  const handleInputChange = <K extends keyof typeof filters,>(key: K, value: (typeof filters)[K]) => {
-     setFilters(prev => ({ ...prev, [key]: value }));
-  };
+const Filters: React.FC<FiltersProps> = React.memo(({ filters, setFilters, warehouses }) => {
+  const handleSearchChange = useCallback((value: string) => {
+    setFilters(prev => ({ ...prev, search: value }));
+  }, [setFilters]);
+
+  const handleWarehouseChange = useCallback((value: string) => {
+    setFilters(prev => ({ ...prev, warehouse: value }));
+  }, [setFilters]);
+
+  const handleStatusChange = useCallback((value: ProductStatus | 'All') => {
+    setFilters(prev => ({ ...prev, status: value }));
+  }, [setFilters]);
 
   return (
     <div className="p-4 border-b border-slate-200">
@@ -27,13 +31,13 @@ const Filters: React.FC<FiltersProps> = ({ filters, setFilters, warehouses }) =>
             type="text"
             placeholder="Search by name, SKU, ID..."
             value={filters.search}
-            onChange={(e) => handleInputChange('search', e.target.value)}
+            onChange={(e) => handleSearchChange(e.target.value)}
             className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-md focus:ring-blue-500 focus:border-blue-500 transition"
           />
         </div>
         <select
           value={filters.warehouse}
-          onChange={(e) => handleInputChange('warehouse', e.target.value)}
+          onChange={(e) => handleWarehouseChange(e.target.value)}
           className="cursor-pointer w-full px-4 py-2 border border-slate-300 rounded-md focus:ring-blue-500 focus:border-blue-500 transition bg-white"
         >
           <option value="All">All Warehouses</option>
@@ -41,7 +45,7 @@ const Filters: React.FC<FiltersProps> = ({ filters, setFilters, warehouses }) =>
         </select>
         <select
           value={filters.status}
-          onChange={(e) => handleInputChange('status', e.target.value as ProductStatus | 'All')}
+          onChange={(e) => handleStatusChange(e.target.value as ProductStatus | 'All')}
           className="cursor-pointer w-full px-4 py-2 border border-slate-300 rounded-md focus:ring-blue-500 focus:border-blue-500 transition bg-white"
         >
           <option value="All">All Statuses</option>
@@ -50,6 +54,6 @@ const Filters: React.FC<FiltersProps> = ({ filters, setFilters, warehouses }) =>
       </div>
     </div>
   );
-};
+});
 
 export default Filters;

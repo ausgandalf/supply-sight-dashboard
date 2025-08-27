@@ -12,12 +12,12 @@ const statusStyles: Record<ProductStatus, string> = {
   [ProductStatus.Critical]: 'bg-red-100 text-red-800',
 };
 
-const StatusPill: React.FC<StatusPillProps> = ({ status }) => {
+const StatusPill: React.FC<StatusPillProps> = React.memo(({ status }) => {
   return (
     <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${statusStyles[status]}`}>
       {status}
     </span>
   );
-};
+});
 
 export default StatusPill;

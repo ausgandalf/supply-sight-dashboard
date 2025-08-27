@@ -28,3 +28,9 @@ export interface Warehouse {
   city: string;
   country: string;
 }
+
+export interface Filters {
+  search: string;
+  warehouse: string;
+  status: ProductStatus | 'All';
+}

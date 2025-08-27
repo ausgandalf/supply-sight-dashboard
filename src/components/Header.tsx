@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useCallback } from 'react';
 import { DateRange } from '../types';
 
 interface HeaderProps {
@@ -7,11 +7,16 @@ interface HeaderProps {
   setDateRange: (range: DateRange) => void;
 }
 
-const DateChip: React.FC<{ range: DateRange, currentRange: DateRange, setDateRange: (range: DateRange) => void }> = ({ range, currentRange, setDateRange }) => {
+const DateChip: React.FC<{ range: DateRange, currentRange: DateRange, setDateRange: (range: DateRange) => void }> = React.memo(({ range, currentRange, setDateRange }) => {
   const isActive = range === currentRange;
+  
+  const handleClick = useCallback(() => {
+    setDateRange(range);
+  }, [setDateRange, range]);
+
   return (
     <button
-      onClick={() => setDateRange(range)}
+      onClick={handleClick}
       className={`cursor-pointer px-3 py-1 text-sm font-medium rounded-full transition-colors ${
         isActive ? 'bg-blue-600 text-white' : 'bg-white text-slate-600 hover:bg-slate-100'
       }`}
@@ -19,9 +24,9 @@ const DateChip: React.FC<{ range: DateRange, currentRange: DateRange, setDateRan
       {range}d
     </button>
   );
-};
+});
 
-const Header: React.FC<HeaderProps> = ({ dateRange, setDateRange }) => {
+const Header: React.FC<HeaderProps> = React.memo(({ dateRange, setDateRange }) => {
   return (
     <header className="bg-white shadow-sm sticky top-0 z-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -38,6 +43,6 @@ const Header: React.FC<HeaderProps> = ({ dateRange, setDateRange }) => {
       </div>
     </header>
   );
-};
+});
 
 export default Header;

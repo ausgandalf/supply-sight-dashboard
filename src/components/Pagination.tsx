@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface PaginationProps {
@@ -12,7 +12,7 @@ interface PaginationProps {
   onRowsPerPageChange: (rowsPerPage: number) => void;
 }
 
-const Pagination: React.FC<PaginationProps> = ({
+const Pagination: React.FC<PaginationProps> = React.memo(({
   currentPage,
   totalPages,
   totalCount,
@@ -39,6 +39,14 @@ const Pagination: React.FC<PaginationProps> = ({
 
   const rowsPerPageOptions = [5, 10, 20, 50];
 
+  const handlePageChange = useCallback((page: number) => {
+    onPageChange(page);
+  }, [onPageChange]);
+
+  const handleRowsPerPageChange = useCallback((newRowsPerPage: number) => {
+    onRowsPerPageChange(newRowsPerPage);
+  }, [onRowsPerPageChange]);
+
   return (
     <div className="flex flex-col gap-4 sm:flex-row items-center justify-between px-6 py-4 border-t border-slate-200 bg-white">
       {/* Left side - Page info and rows per page */}
@@ -51,7 +59,7 @@ const Pagination: React.FC<PaginationProps> = ({
           <span className="text-sm text-slate-600">Rows per page:</span>
           <select
             value={rowsPerPage}
-            onChange={(e) => onRowsPerPageChange(Number(e.target.value))}
+            onChange={(e) => handleRowsPerPageChange(Number(e.target.value))}
             className="cursor-pointer px-2 py-1 text-sm border border-slate-300 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white"
           >
             {rowsPerPageOptions.map(option => (
@@ -65,7 +73,7 @@ const Pagination: React.FC<PaginationProps> = ({
       <div className="flex space-x-2">
         {/* Previous button */}
         <button
-          onClick={() => onPageChange(currentPage - 1)}
+          onClick={() => handlePageChange(currentPage - 1)}
           disabled={!hasPreviousPage}
           className="cursor-pointer px-3 py-2 text-sm font-medium text-slate-500 bg-white border border-slate-300 rounded-md hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white"
         >
@@ -76,7 +84,7 @@ const Pagination: React.FC<PaginationProps> = ({
         {startPage > 1 && (
           <>
             <button
-              onClick={() => onPageChange(1)}
+              onClick={() => handlePageChange(1)}
               className="cursor-pointer px-3 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-50"
             >
               1
@@ -90,7 +98,7 @@ const Pagination: React.FC<PaginationProps> = ({
         {pageNumbers.map(page => (
           <button
             key={page}
-            onClick={() => onPageChange(page)}
+            onClick={() => handlePageChange(page)}
             className={`cursor-pointer px-3 py-2 text-sm font-medium rounded-md border ${
               page === currentPage
                 ? 'bg-blue-600 text-white border-blue-600'
@@ -107,7 +115,7 @@ const Pagination: React.FC<PaginationProps> = ({
               <span className="px-2 py-2 text-slate-400">...</span>
             )}
             <button
-              onClick={() => onPageChange(totalPages)}
+              onClick={() => handlePageChange(totalPages)}
               className="cursor-pointer px-3 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-50"
             >
               {totalPages}
@@ -117,7 +125,7 @@ const Pagination: React.FC<PaginationProps> = ({
 
         {/* Next button */}
         <button
-          onClick={() => onPageChange(currentPage + 1)}
+          onClick={() => handlePageChange(currentPage + 1)}
           disabled={!hasNextPage}
           className="cursor-pointer px-3 py-2 text-sm font-medium text-slate-500 bg-white border border-slate-300 rounded-md hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white"
         >
@@ -126,6 +134,6 @@ const Pagination: React.FC<PaginationProps> = ({
       </div>
     </div>
   );
-};
+});
 
 export default Pagination;

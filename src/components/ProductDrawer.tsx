@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Product, Warehouse } from '../types';
 import { X } from 'lucide-react';
 
@@ -12,7 +12,7 @@ interface ProductDrawerProps {
   warehouses: Warehouse[];
 }
 
-const ProductDrawer: React.FC<ProductDrawerProps> = ({ product, isOpen, onClose, onUpdateDemand, onTransferStock, warehouses }) => {
+const ProductDrawer: React.FC<ProductDrawerProps> = React.memo(({ product, isOpen, onClose, onUpdateDemand, onTransferStock, warehouses }) => {
   const [demand, setDemand] = useState(0);
   const [transferTo, setTransferTo] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -23,31 +23,47 @@ const ProductDrawer: React.FC<ProductDrawerProps> = ({ product, isOpen, onClose,
       const otherWarehouses = warehouses.filter(w => w.code !== product.warehouse);
       setTransferTo(otherWarehouses.length > 0 ? otherWarehouses[0].code : '');
     }
-  }, [product]);
+  }, [product, warehouses]);
 
   if (!product) return null;
 
-  const handleDemandUpdate = async (e: React.FormEvent) => {
+  const handleDemandUpdate = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     await onUpdateDemand(product.id, demand);
     setIsSubmitting(false);
     onClose();
-  };
+  }, [onUpdateDemand, onClose, product.id, demand]);
 
-  const handleStockTransfer = async (e: React.FormEvent) => {
+  const handleStockTransfer = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     await onTransferStock(product.id, product.stock, product.warehouse, transferTo);
     setIsSubmitting(false);
     onClose();
-  };
+  }, [onTransferStock, onClose, product.id, product.stock, product.warehouse, transferTo]);
+
+  const handleDemandChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setDemand(parseInt(e.target.value, 10) || 0);
+  }, []);
+
+  const handleTransferToChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
+    setTransferTo(e.target.value);
+  }, []);
+
+  const handleOverlayClick = useCallback(() => {
+    onClose();
+  }, [onClose]);
+
+  const handleCloseClick = useCallback(() => {
+    onClose();
+  }, [onClose]);
 
   return (
     <>
       <div 
         className={`fixed inset-0 bg-black/50 z-20 transition-opacity ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
-        onClick={onClose}
+        onClick={handleOverlayClick}
       />
       <div className={`fixed top-0 right-0 h-full w-full max-w-md bg-white shadow-xl z-30 transform transition-transform ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}>
         <div className="flex flex-col h-full">
@@ -56,7 +72,7 @@ const ProductDrawer: React.FC<ProductDrawerProps> = ({ product, isOpen, onClose,
                 <h2 className="text-lg font-semibold text-slate-800">{product.name}</h2>
                 <p className="text-sm text-slate-500">{product.sku}</p>
             </div>
-            <button onClick={onClose} className="p-2 rounded-full hover:bg-slate-100">
+            <button onClick={handleCloseClick} className="p-2 rounded-full hover:bg-slate-100">
               <X className="w-5 h-5 text-slate-600" />
             </button>
           </div>
@@ -80,7 +96,7 @@ const ProductDrawer: React.FC<ProductDrawerProps> = ({ product, isOpen, onClose,
                   type="number"
                   id="demand"
                   value={demand}
-                  onChange={(e) => setDemand(parseInt(e.target.value, 10) || 0)}
+                  onChange={handleDemandChange}
                   className="w-full px-3 py-2 border border-slate-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                   required
                 />
@@ -97,7 +113,7 @@ const ProductDrawer: React.FC<ProductDrawerProps> = ({ product, isOpen, onClose,
                 <select
                   id="transferTo"
                   value={transferTo}
-                  onChange={(e) => setTransferTo(e.target.value)}
+                  onChange={handleTransferToChange}
                   className="w-full px-3 py-2 border border-slate-300 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white"
                 >
                   {warehouses.filter(w => w.code !== product.warehouse).map(w => <option key={w.code} value={w.code}>{w.code}</option>)}
@@ -112,6 +128,6 @@ const ProductDrawer: React.FC<ProductDrawerProps> = ({ product, isOpen, onClose,
       </div>
     </>
   );
-};
+});
 
 export default ProductDrawer;

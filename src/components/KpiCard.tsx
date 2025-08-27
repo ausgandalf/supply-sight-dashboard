@@ -7,7 +7,7 @@ interface KpiCardProps {
   icon: React.ReactNode;
 }
 
-const KpiCard: React.FC<KpiCardProps> = ({ title, value, icon }) => {
+const KpiCard: React.FC<KpiCardProps> = React.memo(({ title, value, icon }) => {
   return (
     <div className="bg-white rounded-lg shadow-sm p-5 flex items-start justify-between">
       <div>
@@ -19,6 +19,6 @@ const KpiCard: React.FC<KpiCardProps> = ({ title, value, icon }) => {
       </div>
     </div>
   );
-};
+});
 
 export default KpiCard;

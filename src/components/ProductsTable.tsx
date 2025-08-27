@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Product, ProductStatus, Warehouse } from '../types';
 import StatusPill from './StatusPill';
 
@@ -17,13 +17,17 @@ const getStatus = (stock: number, demand: number): ProductStatus => {
   return ProductStatus.Critical;
 };
 
-const ProductsTable: React.FC<ProductsTableProps> = ({ products, warehouseDict, onRowClick, loading, error }) => {
-  const TableRow: React.FC<{ product: Product }> = ({ product }) => {
+const ProductsTable: React.FC<ProductsTableProps> = React.memo(({ products, warehouseDict, onRowClick, loading, error }) => {
+  const TableRow: React.FC<{ product: Product }> = React.memo(({ product }) => {
     const status = getStatus(product.stock, product.demand);
     const rowClass = status === ProductStatus.Critical ? 'bg-red-50 hover:bg-red-100' : 'hover:bg-slate-50';
 
+    const handleRowClick = useCallback(() => {
+      onRowClick(product);
+    }, [onRowClick, product]);
+
     return (
-      <tr onClick={() => onRowClick(product)} className={`cursor-pointer transition-colors ${rowClass}`}>
+      <tr onClick={handleRowClick} className={`cursor-pointer transition-colors ${rowClass}`}>
         <td className="px-6 py-4 whitespace-nowrap">
           <div className="text-sm font-medium text-slate-900">{product.name}</div>
           <div className="text-sm text-slate-500">{product.id}</div>
@@ -48,7 +52,7 @@ const ProductsTable: React.FC<ProductsTableProps> = ({ products, warehouseDict, 
         </td>
       </tr>
     );
-  };
+  });
   
   if (loading) {
     return <div className="text-center p-8">Loading inventory...</div>;
@@ -82,6 +86,6 @@ const ProductsTable: React.FC<ProductsTableProps> = ({ products, warehouseDict, 
       </table>
     </div>
   );
-};
+});
 
 export default ProductsTable;

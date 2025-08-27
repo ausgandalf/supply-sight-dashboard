@@ -1,5 +1,5 @@
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import Header from './components/Header';
 import KpiCard from './components/KpiCard';
 import InventoryChart from './components/InventoryChart';
@@ -40,23 +40,23 @@ const App: React.FC = () => {
   const [chartLoading, setChartLoading] = useState(false);
   const [chartError, setChartError] = useState<string | null>(null);
 
-  const handleRowClick = (product: Product) => {
+  const handleRowClick = useCallback((product: Product) => {
     setSelectedProduct(product);
     setIsDrawerOpen(true);
-  };
+  }, []);
 
-  const handleCloseDrawer = () => {
+  const handleCloseDrawer = useCallback(() => {
     setIsDrawerOpen(false);
     setSelectedProduct(null);
-  };
+  }, []);
 
-  const handlePageChange = (page: number) => {
+  const handlePageChange = useCallback((page: number) => {
     setPagination(prev => ({ ...prev, currentPage: page }));
-  };
+  }, []);
 
-  const handleRowsPerPageChange = (rowsPerPage: number) => {
+  const handleRowsPerPageChange = useCallback((rowsPerPage: number) => {
     setPagination(prev => ({ ...prev, rowsPerPage, currentPage: 1 }));
-  };
+  }, []);
 
   const kpis = useMemo(() => {
     const totalStock = products.reduce((sum, p) => sum + p.stock, 0);

@@ -38,6 +38,7 @@ const App: React.FC = () => {
   const [dateRange, setDateRange] = useState<DateRange>(30);
   const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
   const [chartLoading, setChartLoading] = useState(false);
+  const [chartError, setChartError] = useState<string | null>(null);
 
   const handleRowClick = (product: Product) => {
     setSelectedProduct(product);
@@ -69,10 +70,12 @@ const App: React.FC = () => {
   useEffect(() => {
     const fetchChartData = async () => {
       setChartLoading(true);
+      setChartError(null);
       try {
         const data = await getChartData(dateRange);
         setChartData(data);
       } catch (error) {
+        setChartError('Failed to fetch chart data.');
         console.error('Failed to fetch chart data:', error);
         setChartData([]);
       } finally {
@@ -95,12 +98,20 @@ const App: React.FC = () => {
 
         <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
           <h2 className="text-lg font-semibold text-slate-800 mb-4">Stock vs. Demand Trend</h2>
-          {chartLoading ? (
+          {chartLoading && (
             <div className="flex items-center justify-center h-64">
               <div className="text-slate-500">Loading chart data...</div>
             </div>
-          ) : (
-            <InventoryChart data={chartData} />
+          )}
+
+          {chartError && (
+            <div className="flex items-center justify-center h-64">
+              <div className="text-red-600">{chartError}</div>
+            </div>
+          )}
+
+          {!chartLoading && !chartError && (
+            <InventoryChart data={chartData}/>
           )}
         </div>
 

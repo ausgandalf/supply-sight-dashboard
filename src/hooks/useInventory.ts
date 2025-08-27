@@ -118,10 +118,8 @@ export const useInventory = () => {
     try {
       const kpiData = await apiService.getKPIs(range.toString());
       return kpiData;
-    } catch (error) {
-      console.error('Failed to fetch KPI data:', error);
-      // Fallback to empty data if API fails
-      return [];
+    } catch (err) {
+      throw err;
     }
   }, []);
 

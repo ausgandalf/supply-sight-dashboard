@@ -34,7 +34,7 @@ const Filters: React.FC<FiltersProps> = ({ filters, setFilters, warehouses }) =>
         <select
           value={filters.warehouse}
           onChange={(e) => handleInputChange('warehouse', e.target.value)}
-          className="w-full px-4 py-2 border border-slate-300 rounded-md focus:ring-blue-500 focus:border-blue-500 transition bg-white"
+          className="cursor-pointer w-full px-4 py-2 border border-slate-300 rounded-md focus:ring-blue-500 focus:border-blue-500 transition bg-white"
         >
           <option value="All">All Warehouses</option>
           {warehouses.map(w => <option key={w.code} value={w.code}>{w.code}</option>)}
@@ -42,7 +42,7 @@ const Filters: React.FC<FiltersProps> = ({ filters, setFilters, warehouses }) =>
         <select
           value={filters.status}
           onChange={(e) => handleInputChange('status', e.target.value as ProductStatus | 'All')}
-          className="w-full px-4 py-2 border border-slate-300 rounded-md focus:ring-blue-500 focus:border-blue-500 transition bg-white"
+          className="cursor-pointer w-full px-4 py-2 border border-slate-300 rounded-md focus:ring-blue-500 focus:border-blue-500 transition bg-white"
         >
           <option value="All">All Statuses</option>
           {Object.values(ProductStatus).map(s => <option key={s} value={s}>{s}</option>)}

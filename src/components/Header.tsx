@@ -12,7 +12,7 @@ const DateChip: React.FC<{ range: DateRange, currentRange: DateRange, setDateRan
   return (
     <button
       onClick={() => setDateRange(range)}
-      className={`px-3 py-1 text-sm font-medium rounded-full transition-colors ${
+      className={`cursor-pointer px-3 py-1 text-sm font-medium rounded-full transition-colors ${
         isActive ? 'bg-blue-600 text-white' : 'bg-white text-slate-600 hover:bg-slate-100'
       }`}
     >
@@ -27,7 +27,7 @@ const Header: React.FC<HeaderProps> = ({ dateRange, setDateRange }) => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <h1 className="text-xl font-bold text-slate-900">
-            Supply<span className="text-blue-600">Sight</span>
+            <span className="text-blue-600">Supply Sight</span> Dashboard
           </h1>
           <div className="flex items-center space-x-2 bg-slate-200 p-1 rounded-full">
             <DateChip range={7} currentRange={dateRange} setDateRange={setDateRange} />

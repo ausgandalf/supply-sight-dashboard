@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { ProductStatus } from '../types';
+import { ProductStatus, Warehouse } from '../types';
 import { Search } from 'lucide-react';
 
 interface FiltersProps {
@@ -10,7 +10,7 @@ interface FiltersProps {
     status: ProductStatus | 'All';
   };
   setFilters: React.Dispatch<React.SetStateAction<typeof filters>>;
-  warehouses: string[];
+  warehouses: Warehouse[];
 }
 
 const Filters: React.FC<FiltersProps> = ({ filters, setFilters, warehouses }) => {
@@ -37,7 +37,7 @@ const Filters: React.FC<FiltersProps> = ({ filters, setFilters, warehouses }) =>
           className="w-full px-4 py-2 border border-slate-300 rounded-md focus:ring-blue-500 focus:border-blue-500 transition bg-white"
         >
           <option value="All">All Warehouses</option>
-          {warehouses.map(w => <option key={w} value={w}>{w}</option>)}
+          {warehouses.map(w => <option key={w.code} value={w.code}>{w.code}</option>)}
         </select>
         <select
           value={filters.status}

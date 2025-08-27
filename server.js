@@ -61,7 +61,7 @@ const products = [
   { "id": "P-1006", "name": "Copper Wire 18AWG", "sku": "CW-018-100", "warehouse": "NYC-B", "stock": 300, "demand": 250 },
   { "id": "P-1007", "name": "Steel Pipe 1/2\"", "sku": "SP-050-250", "warehouse": "CHI-C", "stock": 75, "demand": 90 },
   { "id": "P-1008", "name": "Rubber Gasket", "sku": "GSK-001-1K", "warehouse": "BLR-A", "stock": 1000, "demand": 800 },
-  { "id": "P-1009", "name": "LED Light 5W", "sku": "LED-005-50", "warehouse": "PNQ-C", "stock": 200, "demand": 180 },
+  { "id": "P-1009", "name": "LED Light 5W", "sku": "LED-005-50", "warehouse": "PNQ-C", "stock": 180, "demand": 180 },
   { "id": "P-1010", "name": "Circuit Board", "sku": "PCB-001-25", "warehouse": "DEL-B", "stock": 50, "demand": 60 },
   { "id": "P-1011", "name": "Power Supply 12V", "sku": "PS-012-100", "warehouse": "LAX-A", "stock": 120, "demand": 100 },
   { "id": "P-1012", "name": "Thermal Paste", "sku": "TP-001-50", "warehouse": "NYC-B", "stock": 80, "demand": 95 },

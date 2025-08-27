@@ -1,4 +1,4 @@
-import { Product, ChartDataPoint } from '../types';
+import { Product, ChartDataPoint, Warehouse } from '../types';
 
 const GRAPHQL_URL = import.meta.env.VITE_GRAPHQL_URL || 'http://localhost:4000/';
 
@@ -70,7 +70,7 @@ export const apiService = {
     return data.products;
   },
 
-  async getWarehouses(): Promise<string[]> {
+  async getWarehouses(): Promise<Warehouse[]> {
     const query = `
       query GetWarehouses {
         warehouses {
@@ -83,7 +83,7 @@ export const apiService = {
     `;
     
     const data = await graphqlRequest(query);
-    return data.warehouses.map((w: any) => w.code);
+    return data.warehouses;
   },
 
   async updateDemand(productId: string, newDemand: number): Promise<void> {

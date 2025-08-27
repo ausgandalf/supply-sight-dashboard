@@ -21,3 +21,10 @@ export interface ChartDataPoint {
   stock: number;
   demand: number;
 }
+
+export interface Warehouse {
+  code: string;
+  name: string;
+  city: string;
+  country: string;
+}

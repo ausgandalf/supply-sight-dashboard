@@ -17,6 +17,7 @@ const App: React.FC = () => {
   const {
     products,
     warehouses,
+    warehouseDict,
     loading,
     error,
     filters,
@@ -107,6 +108,7 @@ const App: React.FC = () => {
           <Filters filters={filters} setFilters={setFilters} warehouses={warehouses} />
           <ProductsTable 
             products={products} 
+            warehouseDict={warehouseDict}
             onRowClick={handleRowClick}
             loading={loading}
             error={error}

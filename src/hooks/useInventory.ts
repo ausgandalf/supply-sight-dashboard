@@ -1,6 +1,6 @@
 
-import { useState, useEffect, useCallback } from 'react';
-import { Product, ProductStatus, DateRange, ChartDataPoint } from '../types';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { Product, ProductStatus, DateRange, ChartDataPoint, Warehouse } from '../types';
 import { apiService } from '../services/api';
 
 interface FiltersState {
@@ -16,13 +16,19 @@ interface PaginationState {
 
 export const useInventory = () => {
   const [products, setProducts] = useState<Product[]>([]);
-  const [warehouses, setWarehouses] = useState<string[]>([]);
+  const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [totalCount, setTotalCount] = useState(0);
   const [hasNextPage, setHasNextPage] = useState(false);
   const [hasPreviousPage, setHasPreviousPage] = useState(false);
   const [totalPages, setTotalPages] = useState(0);
+  const warehouseDict = useMemo(() => {
+    return warehouses.reduce((acc, warehouse) => {
+      acc[warehouse.code] = warehouse;
+      return acc;
+    }, {} as Record<string, Warehouse>);
+  }, [warehouses]);
   
   const [filters, setFilters] = useState<FiltersState>({
     search: '',
@@ -122,6 +128,7 @@ export const useInventory = () => {
   return {
     products,
     warehouses,
+    warehouseDict,
     loading,
     error,
     filters,

@@ -1,10 +1,11 @@
 
 import React from 'react';
-import { Product, ProductStatus } from '../types';
+import { Product, ProductStatus, Warehouse } from '../types';
 import StatusPill from './StatusPill';
 
 interface ProductsTableProps {
   products: Product[];
+  warehouseDict: Record<string, Warehouse>;
   onRowClick: (product: Product) => void;
   loading: boolean;
   error: string | null;
@@ -16,7 +17,7 @@ const getStatus = (stock: number, demand: number): ProductStatus => {
   return ProductStatus.Critical;
 };
 
-const ProductsTable: React.FC<ProductsTableProps> = ({ products, onRowClick, loading, error }) => {
+const ProductsTable: React.FC<ProductsTableProps> = ({ products, warehouseDict, onRowClick, loading, error }) => {
   const TableRow: React.FC<{ product: Product }> = ({ product }) => {
     const status = getStatus(product.stock, product.demand);
     const rowClass = status === ProductStatus.Critical ? 'bg-red-50 hover:bg-red-100' : 'hover:bg-slate-50';
@@ -28,7 +29,18 @@ const ProductsTable: React.FC<ProductsTableProps> = ({ products, onRowClick, loa
           <div className="text-sm text-slate-500">{product.id}</div>
         </td>
         <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">{product.sku}</td>
-        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">{product.warehouse}</td>
+        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
+          {warehouseDict[product.warehouse] ? (
+            <div className="text-sm text-slate-500">
+              {warehouseDict[product.warehouse].code}
+              <div className="text-xs text-slate-500">
+                {warehouseDict[product.warehouse].city}, {warehouseDict[product.warehouse].country}
+              </div>
+            </div>
+          ) : (
+            product.warehouse
+          )}
+        </td>
         <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-800 font-semibold">{product.stock.toLocaleString()}</td>
         <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-800 font-semibold">{product.demand.toLocaleString()}</td>
         <td className="px-6 py-4 whitespace-nowrap">

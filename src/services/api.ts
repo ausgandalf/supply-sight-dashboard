@@ -1,4 +1,4 @@
-import { Product } from '../types';
+import { Product, ChartDataPoint } from '../types';
 
 const GRAPHQL_URL = import.meta.env.VITE_GRAPHQL_URL || 'http://localhost:4000/';
 
@@ -38,21 +38,35 @@ const graphqlRequest = async (query: string, variables?: any) => {
 };
 
 export const apiService = {
-  async getProducts(): Promise<Product[]> {
+  async getProducts(search?: string, warehouse?: string, status?: string, page: number = 1, limit: number = 10): Promise<{
+    products: Product[];
+    totalCount: number;
+    hasNextPage: boolean;
+    hasPreviousPage: boolean;
+    currentPage: number;
+    totalPages: number;
+  }> {
     const query = `
-      query GetProducts($search: String, $warehouse: String, $status: String) {
-        products(search: $search, warehouse: $warehouse, status: $status) {
-          id
-          name
-          sku
-          warehouse
-          stock
-          demand
+      query GetProducts($search: String, $warehouse: String, $status: String, $page: Int, $limit: Int) {
+        products(search: $search, warehouse: $warehouse, status: $status, page: $page, limit: $limit) {
+          products {
+            id
+            name
+            sku
+            warehouse
+            stock
+            demand
+          }
+          totalCount
+          hasNextPage
+          hasPreviousPage
+          currentPage
+          totalPages
         }
       }
     `;
     
-    const data = await graphqlRequest(query);
+    const data = await graphqlRequest(query, { search, warehouse, status, page, limit });
     return data.products;
   },
 
@@ -101,5 +115,24 @@ export const apiService = {
       fromWarehouse, 
       toWarehouse 
     });
+  },
+
+  async getKPIs(range: string): Promise<ChartDataPoint[]> {
+    const query = `
+      query GetKPIs($range: String!) {
+        kpis(range: $range) {
+          date
+          stock
+          demand
+        }
+      }
+    `;
+    
+    const data = await graphqlRequest(query, { range: range.toString() });
+    return data.kpis.map((kpi: any) => ({
+      date: new Date(kpi.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+      stock: kpi.stock,
+      demand: kpi.demand,
+    }));
   },
 };

@@ -46,7 +46,7 @@ const ProductDrawer: React.FC<ProductDrawerProps> = ({ product, isOpen, onClose,
   return (
     <>
       <div 
-        className={`fixed inset-0 bg-black bg-opacity-50 z-20 transition-opacity ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+        className={`fixed inset-0 bg-black/50 z-20 transition-opacity ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
         onClick={onClose}
       />
       <div className={`fixed top-0 right-0 h-full w-full max-w-md bg-white shadow-xl z-30 transform transition-transform ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}>

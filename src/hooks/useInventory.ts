@@ -19,6 +19,10 @@ export const useInventory = () => {
   const [warehouses, setWarehouses] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [totalCount, setTotalCount] = useState(0);
+  const [hasNextPage, setHasNextPage] = useState(false);
+  const [hasPreviousPage, setHasPreviousPage] = useState(false);
+  const [totalPages, setTotalPages] = useState(0);
   
   const [filters, setFilters] = useState<FiltersState>({
     search: '',
@@ -31,17 +35,28 @@ export const useInventory = () => {
     rowsPerPage: 10,
   });
 
+  // Fetch data when filters or pagination changes
   useEffect(() => {
-    // Fetch data from API
     const fetchData = async () => {
       setLoading(true);
       setError(null);
       try {
         const [productsData, warehousesData] = await Promise.all([
-          apiService.getProducts(),
+          apiService.getProducts(
+            filters.search || undefined,
+            filters.warehouse === 'All' ? undefined : filters.warehouse,
+            filters.status === 'All' ? undefined : filters.status,
+            pagination.currentPage,
+            pagination.rowsPerPage
+          ),
           apiService.getWarehouses(),
         ]);
-        setProducts(productsData);
+        
+        setProducts(productsData.products);
+        setTotalCount(productsData.totalCount);
+        setHasNextPage(productsData.hasNextPage);
+        setHasPreviousPage(productsData.hasPreviousPage);
+        setTotalPages(productsData.totalPages);
         setWarehouses(warehousesData);
       } catch (err) {
         setError('Failed to fetch inventory data.');
@@ -52,7 +67,7 @@ export const useInventory = () => {
     };
 
     fetchData();
-  }, []);
+  }, [filters, pagination.currentPage, pagination.rowsPerPage]);
 
   // Update demand via API
   const updateDemand = useCallback(async (productId: string, newDemand: number): Promise<void> => {
@@ -88,28 +103,16 @@ export const useInventory = () => {
     }
   }, []);
   
-  const getChartData = useCallback((range: DateRange): ChartDataPoint[] => {
-    const data: ChartDataPoint[] = [];
-    const today = new Date();
-    const totalCurrentStock = products.reduce((sum, p) => sum + p.stock, 0);
-    const totalCurrentDemand = products.reduce((sum, p) => sum + p.demand, 0);
-
-    for (let i = range - 1; i >= 0; i--) {
-      const date = new Date(today);
-      date.setDate(today.getDate() - i);
-      
-      // Simulate historical data with some noise
-      const stockFluctuation = (Math.random() - 0.5) * 0.1; // +/- 5%
-      const demandFluctuation = (Math.random() - 0.5) * 0.1;
-
-      data.push({
-        date: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-        stock: Math.round(totalCurrentStock * (1 - (i / (range*2))) * (1 + stockFluctuation)),
-        demand: Math.round(totalCurrentDemand * (1 - (i / (range*3))) * (1 + demandFluctuation)),
-      });
+  const getChartData = useCallback(async (range: DateRange): Promise<ChartDataPoint[]> => {
+    try {
+      const kpiData = await apiService.getKPIs(range.toString());
+      return kpiData;
+    } catch (error) {
+      console.error('Failed to fetch KPI data:', error);
+      // Fallback to empty data if API fails
+      return [];
     }
-    return data;
-  }, [products]);
+  }, []);
 
   return {
     products,
@@ -120,6 +123,10 @@ export const useInventory = () => {
     setFilters,
     pagination,
     setPagination,
+    totalCount,
+    hasNextPage,
+    hasPreviousPage,
+    totalPages,
     updateDemand,
     transferStock,
     getChartData,

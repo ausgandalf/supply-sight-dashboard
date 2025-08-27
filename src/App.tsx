@@ -1,13 +1,14 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import Header from './components/Header';
 import KpiCard from './components/KpiCard';
 import InventoryChart from './components/InventoryChart';
 import Filters from './components/Filters';
 import ProductsTable from './components/ProductsTable';
 import ProductDrawer from './components/ProductDrawer';
+import Pagination from './components/Pagination';
 import { useInventory } from './hooks/useInventory';
-import { Product, ProductStatus, DateRange } from './types';
+import { Product, ProductStatus, DateRange, ChartDataPoint } from './types';
 import { BarChart, TrendingUp, Package } from 'lucide-react';
 
 import './App.css';
@@ -22,6 +23,10 @@ const App: React.FC = () => {
     setFilters,
     pagination,
     setPagination,
+    totalCount,
+    hasNextPage,
+    hasPreviousPage,
+    totalPages,
     updateDemand,
     transferStock,
     getChartData,
@@ -30,6 +35,8 @@ const App: React.FC = () => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [dateRange, setDateRange] = useState<DateRange>(30);
+  const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
+  const [chartLoading, setChartLoading] = useState(false);
 
   const handleRowClick = (product: Product) => {
     setSelectedProduct(product);
@@ -41,31 +48,13 @@ const App: React.FC = () => {
     setSelectedProduct(null);
   };
 
-  const filteredProducts = useMemo(() => {
-    return products
-      .filter(p => {
-        const searchTerm = filters.search.toLowerCase();
-        return (
-          p.name.toLowerCase().includes(searchTerm) ||
-          p.sku.toLowerCase().includes(searchTerm) ||
-          p.id.toLowerCase().includes(searchTerm)
-        );
-      })
-      .filter(p => filters.warehouse === 'All' || p.warehouse === filters.warehouse)
-      .filter(p => {
-        if (filters.status === 'All') return true;
-        const status = p.stock > p.demand ? ProductStatus.Healthy : p.stock === p.demand ? ProductStatus.Low : ProductStatus.Critical;
-        return status === filters.status;
-      });
-  }, [products, filters]);
+  const handlePageChange = (page: number) => {
+    setPagination(prev => ({ ...prev, currentPage: page }));
+  };
 
-  const paginatedProducts = useMemo(() => {
-    const start = (pagination.currentPage - 1) * pagination.rowsPerPage;
-    const end = start + pagination.rowsPerPage;
-    return filteredProducts.slice(start, end);
-  }, [filteredProducts, pagination]);
-
-  const totalPages = Math.ceil(filteredProducts.length / pagination.rowsPerPage);
+  const handleRowsPerPageChange = (rowsPerPage: number) => {
+    setPagination(prev => ({ ...prev, rowsPerPage, currentPage: 1 }));
+  };
 
   const kpis = useMemo(() => {
     const totalStock = products.reduce((sum, p) => sum + p.stock, 0);
@@ -75,7 +64,23 @@ const App: React.FC = () => {
     return { totalStock, totalDemand, fillRate };
   }, [products]);
 
-  const chartData = useMemo(() => getChartData(dateRange), [dateRange, getChartData]);
+  // Fetch chart data when date range changes
+  useEffect(() => {
+    const fetchChartData = async () => {
+      setChartLoading(true);
+      try {
+        const data = await getChartData(dateRange);
+        setChartData(data);
+      } catch (error) {
+        console.error('Failed to fetch chart data:', error);
+        setChartData([]);
+      } finally {
+        setChartLoading(false);
+      }
+    };
+
+    fetchChartData();
+  }, [dateRange, getChartData]);
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800">
@@ -89,16 +94,32 @@ const App: React.FC = () => {
 
         <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
           <h2 className="text-lg font-semibold text-slate-800 mb-4">Stock vs. Demand Trend</h2>
-          <InventoryChart data={chartData} />
+          {chartLoading ? (
+            <div className="flex items-center justify-center h-64">
+              <div className="text-slate-500">Loading chart data...</div>
+            </div>
+          ) : (
+            <InventoryChart data={chartData} />
+          )}
         </div>
 
         <div className="bg-white rounded-lg shadow-sm">
           <Filters filters={filters} setFilters={setFilters} warehouses={warehouses} />
           <ProductsTable 
-            products={paginatedProducts} 
+            products={products} 
             onRowClick={handleRowClick}
             loading={loading}
             error={error}
+          />
+          <Pagination
+            currentPage={pagination.currentPage}
+            totalPages={totalPages}
+            totalCount={totalCount}
+            hasNextPage={hasNextPage}
+            hasPreviousPage={hasPreviousPage}
+            rowsPerPage={pagination.rowsPerPage}
+            onPageChange={handlePageChange}
+            onRowsPerPageChange={handleRowsPerPageChange}
           />
         </div>
       </main>
